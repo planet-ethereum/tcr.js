@@ -1,0 +1,57 @@
+{
+  "name": "tcr.js",
+  "version": "0.1.0",
+  "description": "JS lib for token curated registries",
+  "main": "dist/tcr.cjs.js",
+  "module": "dist/tcr.esm.js",
+  "browser": "dist/tcr.umd.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:s1na/tcr.js.git"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -w -c",
+    "test": "jest",
+    "lint": "standard",
+    "flow": "flow"
+  },
+  "standard": {
+    "parser": "babel-eslint",
+    "plugins": [
+      "flowtype"
+    ],
+    "envs": [
+      "jest"
+    ]
+  },
+  "jest": {
+    "testURL": "http://localhost"
+  },
+  "license": "MIT",
+  "author": "Sina Mahmoodi",
+  "private": true,
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^8.2.6",
+    "babel-jest": "^23.4.2",
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-flow": "^6.23.0",
+    "eslint-plugin-flowtype": "^2.50.0",
+    "flow-bin": "^0.78.0",
+    "jest": "^23.4.2",
+    "regenerator-runtime": "^0.12.1",
+    "rollup-plugin-babel": "^3.0.7",
+    "rollup-plugin-json": "^3.0.0",
+    "standard": "^11.0.1",
+    "web3": "^1.0.0-beta.35"
+  },
+  "dependencies": {
+    "bn.js": "^4.11.8"
+  }
+}
