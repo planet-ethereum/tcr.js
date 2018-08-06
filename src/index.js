@@ -29,7 +29,7 @@ export default class TCR {
     let gas = await this.registry.methods.apply(hash, amount, data).estimateGas()
     // The estimated gas doesn't seem to work
     // for apply.
-    gas = (gas * 3) / 2
+    gas = Math.floor((gas * 3) / 2)
     const tx = await this.registry.methods.apply(hash, amount, data).send({ gas })
 
     return new Application(this.account, this.registry, tx.events['_Application'].returnValues)

@@ -28,8 +28,8 @@ export default class Application {
     this.data = data
     this.applicant = applicant
 
-    if (typeof this.deposit === 'string') {
-      this.deposit = BN(this.deposit)
+    if (this.deposit && typeof this.deposit === 'string') {
+      this.deposit = new BN(this.deposit, 10)
     }
   }
 
@@ -40,7 +40,6 @@ export default class Application {
   async deposit (amount: number) {
     let tx = await this.registry.methods.deposit(this.hash, amount).send()
     const newTotal = tx.events[0].returnValues.newTotal
-    console.log(newTotal)
     this.deposit = newTotal
   }
 }
