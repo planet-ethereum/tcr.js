@@ -44,10 +44,12 @@
     "babel-preset-flow": "^6.23.0",
     "eslint-plugin-flowtype": "^2.50.0",
     "flow-bin": "^0.78.0",
+    "ganache-core": "^2.1.6",
     "jest": "^23.4.2",
     "regenerator-runtime": "^0.12.1",
     "rollup-plugin-babel": "^3.0.7",
     "rollup-plugin-json": "^3.0.0",
+    "solc": "^0.4.24",
     "standard": "^11.0.1",
     "web3": "^1.0.0-beta.35"
   },
