@@ -19,6 +19,7 @@ test('should instantiate', async () => {
 
 test('should apply', async () => {
   const r = new TCR(web3, registry)
+  await expect(r.init()).resolves
   const app = await r.apply(web3.utils.sha3('test'), 120, '0x0')
   expect(app.deposit.toString()).toEqual('120')
   expect(app.hash).toMatch('0x')

@@ -52,6 +52,6 @@ export default class Application {
   async challenge (data: string) {
     const tx = await this.registry.methods.challenge(this.hash, data).send()
     await this.stateMachine.updateFromTx(tx)
-    return this
+    return this.stateMachine.challenges.get(this.hash)
   }
 }

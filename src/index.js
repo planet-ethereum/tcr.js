@@ -2,10 +2,12 @@
 // @flow
 import StateMachine from './state-machine'
 import Account from './account'
+import PLCRVoting from '../tcr/build/contracts/PLCRVoting.json'
 
 export default class TCR {
   web3: Object
   registry: Object
+  plcr: Object
   stateMachine: StateMachine
   account: Account
 
@@ -13,10 +15,11 @@ export default class TCR {
     this.web3 = web3
     this.registry = registry
     this.account = new Account(web3)
-    this.stateMachine = new StateMachine(web3, registry)
   }
 
   async init () {
+    this.plcr = await this.getVotingContract()
+    this.stateMachine = new StateMachine(this.web3, this.registry, this.plcr)
     await this.stateMachine.sync()
   }
 
@@ -29,6 +32,20 @@ export default class TCR {
     await this.stateMachine.updateFromTx(tx)
 
     return this.getApplication(hash)
+  }
+
+  async getVotingContract () {
+    const addr = await this.registry.methods.voting()
+    const contract = new this.web3.eth.Contract(PLCRVoting.abi, addr)
+    return contract
+  }
+
+  async requestVotingRights (amount: number) {
+    return this.plcr.methods.requestVotingRights(amount)
+  }
+
+  async withdrawVotingRights (amount: number) {
+    return this.plcr.methods.withdrawVotingRights(amount)
   }
 
   async getListings () {
