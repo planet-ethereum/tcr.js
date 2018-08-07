@@ -10,7 +10,6 @@ let registry
 
 beforeAll(async () => {
   registry = await utils.newRegistry()
-
 })
 
 test('should instantiate', async () => {

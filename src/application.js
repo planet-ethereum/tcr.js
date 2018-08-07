@@ -2,10 +2,8 @@
 // @flow
 import BN from 'bn.js'
 
-import Account from './account'
-
 export default class Application {
-  account: Account
+  stateMachine: Object
   registry: Object
   hash: string
   deposit: number
@@ -13,14 +11,14 @@ export default class Application {
   data: string
   applicant: string
 
-  constructor (account: Account, registry: Object, { listingHash, deposit, appEndDate, data, applicant }: {
+  constructor (stateMachine: Object, registry: Object, { listingHash, deposit, appEndDate, data, applicant }: {
     listingHash: string,
     deposit: number,
     appEndDate: number,
     data: string,
     applicant: string
   }) {
-    this.account = account
+    this.stateMachine = stateMachine
     this.registry = registry
     this.hash = listingHash
     this.deposit = deposit
@@ -34,12 +32,26 @@ export default class Application {
   }
 
   async updateStatus () {
-    return this.registry.methods.updateStatus(this.hash).send()
+    const tx = await this.registry.methods.updateStatus(this.hash).send()
+    await this.stateMachine.updateFromTx(tx)
+    return this
   }
 
   async deposit (amount: number) {
-    let tx = await this.registry.methods.deposit(this.hash, amount).send()
-    const newTotal = tx.events[0].returnValues.newTotal
-    this.deposit = newTotal
+    const tx = await this.registry.methods.deposit(this.hash, amount).send()
+    await this.stateMachine.updateFromTx(tx)
+    return this
+  }
+
+  async withdraw (amount: number) {
+    const tx = await this.registry.methods.withdraw(this.hash, amount).send()
+    await this.stateMachine.updateFromTx(tx)
+    return this
+  }
+
+  async challenge (data: string) {
+    const tx = await this.registry.methods.challenge(this.hash, data).send()
+    await this.stateMachine.updateFromTx(tx)
+    return this
   }
 }
