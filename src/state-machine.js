@@ -24,18 +24,18 @@ export default class StateMachine {
     this.challenges = new Map()
     this.validEvents = new Set([
       '_Application',
-      '_Challenge',
-      '_Deposit',
-      '_Withdrawal',
       '_ApplicationWhitelisted',
       '_ApplicationRemoved',
+      '_Deposit',
+      '_Withdrawal',
       '_ListingRemoved',
       '_ListingWithdrawn',
       '_TouchAndRemoved',
+      '_Challenge',
+      '_PollCreated',
       '_ChallengeFailed',
       '_ChallengeSucceeded',
-      '_RewardClaimed',
-      '_PollCreated'
+      '_RewardClaimed'
     ])
   }
 
@@ -62,12 +62,26 @@ export default class StateMachine {
     let values = log.returnValues
     let hash = values.listingHash
     let a
+    let c
     switch (log.event) {
       case '_Application':
         this.applications.set(hash, new Application(this, this.registry, values))
         break
       case '_Challenge':
         this.challenges.set(hash, new Challenge(this.web3, this.registry, this.plcr, values))
+        break
+      case '_ChallengeFailed':
+        c = this.challenges.get(hash)
+        if (!c) break
+
+        c.finished = true
+        break
+      case '_ChallengeSucceeded':
+        c = this.challenges.get(hash)
+        if (!c) break
+
+        c.finished = true
+        c.succeeded = true
         break
       case '_ApplicationWhitelisted':
         a = this.applications.get(hash)

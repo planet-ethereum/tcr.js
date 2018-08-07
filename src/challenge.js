@@ -10,6 +10,8 @@ export default class Challenge {
   commitEndDate: string
   revealEndDate: string
   challenger: string
+  finished: boolean
+  succeeded: boolean
 
   constructor (web3: Object, registry: Object, plcr: Object, { challengeID, data, commitEndDate, revealEndDate, challenger }: {
     challengeID: number,
@@ -26,14 +28,18 @@ export default class Challenge {
     this.commitEndDate = commitEndDate
     this.revealEndDate = revealEndDate
     this.challenger = challenger
+    this.finished = false
+    this.succeeded = false
   }
 
-  async commitVote (vote: boolean, salt: number, numTokens: number, prevPollId: number) {
+  async commitVote (vote: boolean, salt: number, numTokens: number) {
     const voteOption = vote ? 1 : 0
     const secretHash = this.web3.utils.soliditySha3(
       { type: 'uint', value: voteOption },
       { type: 'uint', value: salt }
     )
+    const coinbase = await this.web3.eth.getCoinbase()
+    const prevPollId = await this.plcr.methods.getInsertPointForNumTokens(coinbase, numTokens, this.id)
     const tx = await this.plcr.methods.commitVote(this.id, secretHash, numTokens, prevPollId)
     return tx
   }
@@ -44,7 +50,7 @@ export default class Challenge {
     return tx
   }
 
-  async claimVoterReward (salt: number) {
+  async claimReward (salt: number) {
     const tx = await this.registry.methods.claimReward(this.id, salt)
     return tx
   }
