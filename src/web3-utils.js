@@ -11,6 +11,7 @@ import Registry from '../tcr/build/contracts/Registry.json'
 export default class Web3Utils {
   constructor (web3) {
     this.web3 = web3
+    this.token = null
   }
 
   async deployContract (abi, bytecode, ...args) {
@@ -43,7 +44,7 @@ export default class Web3Utils {
     const coinbase = await this.web3.eth.getCoinbase()
     const rf = await this.deployContracts()
 
-    let params = [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100]
+    let params = [100, 100, 100, 100, 1, 100, 5, 100, 50, 50, 50, 50]
     let gas = await rf.methods.newRegistryWithToken(
       10 ** 6,
       'OpenKnowledgeTestToken',
@@ -66,7 +67,8 @@ export default class Web3Utils {
     const log = tx.events.NewRegistry.returnValues
     const r = new this.web3.eth.Contract(Registry.abi, log.registry, { from: coinbase })
     const t = new this.web3.eth.Contract(EIP20.abi, log.token, { from: coinbase })
-    await t.methods.approve(log.registry, coinbase).send()
+    this.token = t
+    await t.methods.approve(log.registry, 1000).send({ from: coinbase })
 
     return r
   }
@@ -76,5 +78,17 @@ export default class Web3Utils {
     const as = await this.deployContract(AttributeStore.abi, AttributeStore.bytecode)
 
     return { DLL: dll.options.address, AttributeStore: as.options.address }
+  }
+
+  async fund (addr, amount) {
+    if (this.token === null) throw new Error('Token contract not initialized')
+
+    return this.token.methods.transfer(addr, amount).send()
+  }
+
+  async approve (addr, amount, opts = {}) {
+    if (this.token === null) throw new Error('Token contract not initialized')
+
+    return this.token.methods.approve(addr, amount).send(opts)
   }
 }

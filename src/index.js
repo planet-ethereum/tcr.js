@@ -35,17 +35,19 @@ export default class TCR {
   }
 
   async getVotingContract () {
-    const addr = await this.registry.methods.voting()
+    const addr = await this.registry.methods.voting().call()
     const contract = new this.web3.eth.Contract(PLCRVoting.abi, addr)
     return contract
   }
 
-  async requestVotingRights (amount: number) {
-    return this.plcr.methods.requestVotingRights(amount)
+  async requestVotingRights (amount: number, web3Opts: Object = {}) {
+    return this.plcr.methods.requestVotingRights(amount).send(web3Opts)
   }
 
-  async withdrawVotingRights (amount: number) {
-    return this.plcr.methods.withdrawVotingRights(amount)
+  async withdrawVotingRights (amount: number, web3Opts: Object = {}) {
+    let gas = await this.plcr.methods.withdrawVotingRights(amount).estimateGas()
+    const opts = Object.assign({}, { gas }, web3Opts)
+    return this.plcr.methods.withdrawVotingRights(amount).send(opts)
   }
 
   async getListings () {

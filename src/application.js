@@ -10,6 +10,7 @@ export default class Application {
   appEndDate: number
   data: string
   applicant: string
+  whitelisted: boolean
 
   constructor (stateMachine: Object, registry: Object, { listingHash, deposit, appEndDate, data, applicant }: {
     listingHash: string,
@@ -25,6 +26,7 @@ export default class Application {
     this.appEndDate = appEndDate
     this.data = data
     this.applicant = applicant
+    this.whitelisted = false
 
     if (this.deposit && typeof this.deposit === 'string') {
       this.deposit = new BN(this.deposit, 10)
@@ -32,7 +34,9 @@ export default class Application {
   }
 
   async updateStatus () {
-    const tx = await this.registry.methods.updateStatus(this.hash).send()
+    let gas = await this.registry.methods.updateStatus(this.hash).estimateGas()
+    gas = gas * 2
+    const tx = await this.registry.methods.updateStatus(this.hash).send({ gas })
     await this.stateMachine.updateFromTx(tx)
     return this
   }
@@ -49,8 +53,11 @@ export default class Application {
     return this
   }
 
-  async challenge (data: string) {
-    const tx = await this.registry.methods.challenge(this.hash, data).send()
+  async challenge (data: string, web3Opts: Object = {}) {
+    let gas = await this.registry.methods.challenge(this.hash, data).estimateGas()
+    gas = gas * 2
+    const opts = Object.assign({}, { gas }, web3Opts)
+    const tx = await this.registry.methods.challenge(this.hash, data).send(opts)
     await this.stateMachine.updateFromTx(tx)
     return this.stateMachine.challenges.get(this.hash)
   }

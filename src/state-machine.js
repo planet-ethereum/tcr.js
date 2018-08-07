@@ -87,6 +87,7 @@ export default class StateMachine {
         a = this.applications.get(hash)
         if (!a) break
 
+        a.whitelisted = true
         this.listings.set(hash, new Listing(this.registry, a))
         break
       case '_Deposit':
