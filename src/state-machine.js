@@ -2,9 +2,11 @@
 // @flow
 import Listing from './listing'
 import Challenge from './challenge'
+import Web3Utils from './web3-utils'
 
 export default class StateMachine {
   web3: Object
+  web3Utils: Web3Utils
   registry: Object
   plcr: Object
   synced: boolean
@@ -14,6 +16,7 @@ export default class StateMachine {
 
   constructor (web3: Object, registry: Object, plcr: Object) {
     this.web3 = web3
+    this.web3Utils = new Web3Utils(web3)
     this.registry = registry
     this.plcr = plcr
     this.synced = false
@@ -62,10 +65,10 @@ export default class StateMachine {
     let c
     switch (log.event) {
       case '_Application':
-        this.listings.set(hash, new Listing(this, this.registry, values))
+        this.listings.set(hash, new Listing(this, values))
         break
       case '_Challenge':
-        this.challenges.set(hash, new Challenge(this.web3, this.registry, this.plcr, values))
+        this.challenges.set(hash, new Challenge(this, values))
         break
       case '_ChallengeFailed':
         c = this.challenges.get(hash)

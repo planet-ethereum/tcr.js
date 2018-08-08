@@ -4,7 +4,6 @@ import BN from 'bn.js'
 
 export default class Listing {
   stateMachine: Object
-  registry: Object
   hash: string
   deposit: number
   appEndDate: number
@@ -12,7 +11,7 @@ export default class Listing {
   applicant: string
   whitelisted: boolean
 
-  constructor (stateMachine: Object, registry: Object, { listingHash, deposit, appEndDate, data, applicant }: {
+  constructor (stateMachine: Object, { listingHash, deposit, appEndDate, data, applicant }: {
     listingHash: string,
     deposit: number,
     appEndDate: number,
@@ -20,7 +19,6 @@ export default class Listing {
     applicant: string
   }) {
     this.stateMachine = stateMachine
-    this.registry = registry
     this.hash = listingHash
     this.deposit = deposit
     this.appEndDate = appEndDate
@@ -34,35 +32,32 @@ export default class Listing {
   }
 
   async updateStatus () {
-    let gas = await this.registry.methods.updateStatus(this.hash).estimateGas()
-    gas = gas * 2
-    const tx = await this.registry.methods.updateStatus(this.hash).send({ gas })
+    const method = this.stateMachine.registry.methods.updateStatus(this.hash)
+    const tx = await this.stateMachine.web3Utils.sendTx(method)
     await this.stateMachine.updateFromTx(tx)
     return this
   }
 
   async deposit (amount: number) {
-    const tx = await this.registry.methods.deposit(this.hash, amount).send()
+    const tx = await this.stateMachine.registry.methods.deposit(this.hash, amount).send()
     await this.stateMachine.updateFromTx(tx)
     return this
   }
 
   async withdraw (amount: number) {
-    const tx = await this.registry.methods.withdraw(this.hash, amount).send()
+    const tx = await this.stateMachine.registry.methods.withdraw(this.hash, amount).send()
     await this.stateMachine.updateFromTx(tx)
     return this
   }
 
   async challenge (data: string, web3Opts: Object = {}) {
-    let gas = await this.registry.methods.challenge(this.hash, data).estimateGas()
-    gas = gas * 2
-    const opts = Object.assign({}, { gas }, web3Opts)
-    const tx = await this.registry.methods.challenge(this.hash, data).send(opts)
+    const method = this.stateMachine.registry.methods.challenge(this.hash, data)
+    const tx = await this.stateMachine.web3Utils.sendTx(method, web3Opts)
     await this.stateMachine.updateFromTx(tx)
     return this.stateMachine.challenges.get(this.hash)
   }
 
   async exit () {
-    return this.registry.methods.exit(this.hash).send()
+    return this.stateMachine.registry.methods.exit(this.hash).send()
   }
 }

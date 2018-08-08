@@ -32,11 +32,8 @@ export default class TCR {
   }
 
   async apply (hash: string, amount: number, data: string) {
-    let gas = await this.registry.methods.apply(hash, amount, data).estimateGas()
-    // The estimated gas doesn't seem to work
-    // https://github.com/trufflesuite/ganache-core/pull/75
-    gas = Math.floor((gas * 3) / 2)
-    const tx = await this.registry.methods.apply(hash, amount, data).send({ gas })
+    const method = await this.registry.methods.apply(hash, amount, data)
+    const tx = await this.web3Utils.sendTx(method)
     await this.stateMachine.updateFromTx(tx)
 
     return this.getListing(hash)
@@ -47,9 +44,8 @@ export default class TCR {
   }
 
   async withdrawVotingRights (amount: number, web3Opts: Object = {}) {
-    let gas = await this.plcr.methods.withdrawVotingRights(amount).estimateGas()
-    const opts = Object.assign({}, { gas }, web3Opts)
-    return this.plcr.methods.withdrawVotingRights(amount).send(opts)
+    const method = this.plcr.methods.withdrawVotingRights(amount)
+    return this.web3Utils.sendTx(method, web3Opts)
   }
 
   async getListings () {

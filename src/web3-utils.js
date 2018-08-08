@@ -15,6 +15,19 @@ export default class Web3Utils {
     return new this.web3.eth.Contract(abi, addr)
   }
 
+  async sendTx (method, opts) {
+    // estimateGas modifies the opts
+    const optsCopy = Object.assign({}, opts)
+    let gas = await method.estimateGas(optsCopy)
+
+    // The estimated gas doesn't seem to work
+    // https://github.com/trufflesuite/ganache-core/pull/75
+    gas *= 2
+
+    opts = Object.assign({}, { gas }, opts)
+    return method.send(opts)
+  }
+
   async deployContract (abi, bytecode, ...args) {
     const coinbase = await this.web3.eth.getCoinbase()
     let c = new this.web3.eth.Contract(abi, { from: coinbase })
