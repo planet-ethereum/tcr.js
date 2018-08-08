@@ -1,5 +1,6 @@
 'use strict'
 // @flow
+import Web3 from 'web3'
 import StateMachine from './state-machine'
 import Account from './account'
 import PLCRVoting from '../tcr/build/contracts/PLCRVoting.json'
@@ -11,10 +12,10 @@ export default class TCR {
   stateMachine: StateMachine
   account: Account
 
-  constructor (web3: Object, registry: Object) {
-    this.web3 = web3
+  constructor (provider: Object, registry: Object) {
+    this.web3 = new Web3(provider)
     this.registry = registry
-    this.account = new Account(web3)
+    this.account = new Account(this.web3)
   }
 
   async init () {

@@ -4,7 +4,8 @@ import Ganache from 'ganache-core'
 import TCR from './index'
 import Web3Utils from './web3-utils'
 
-const web3 = new Web3(Ganache.provider({ gasLimit: 18000000 }))
+const provider = Ganache.provider({ gasLimit: 18000000 })
+const web3 = new Web3(provider)
 const utils = new Web3Utils(web3)
 let registry
 
@@ -19,7 +20,7 @@ describe('scenario 1', async () => {
     challenger = accounts[1]
     voter1 = accounts[2]
     voter2 = accounts[3]
-    r = new TCR(web3, registry)
+    r = new TCR(provider, registry)
   })
 
   test('should instantiate', async () => {
