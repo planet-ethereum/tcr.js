@@ -3,23 +3,31 @@
 import Web3 from 'web3'
 import StateMachine from './state-machine'
 import Account from './account'
+import Token from './token'
+import Web3Utils from './web3-utils'
 import PLCRVoting from '../tcr/build/contracts/PLCRVoting.json'
+import EIP20Interface from '../tcr/build/contracts/EIP20Interface.json'
 
 export default class TCR {
   web3: Object
+  web3Utils: Web3Utils
   registry: Object
   plcr: Object
+  token: Token
   stateMachine: StateMachine
   account: Account
 
   constructor (provider: Object, registry: Object) {
     this.web3 = new Web3(provider)
+    this.web3Utils = new Web3Utils(this.web3)
     this.registry = registry
     this.account = new Account(this.web3)
   }
 
   async init () {
-    this.plcr = await this.getVotingContract()
+    this.plcr = this.web3Utils.getContract(PLCRVoting.abi, await this.getVotingAddr())
+    this.token = new Token(this.web3Utils.getContract(EIP20Interface.abi, await this.getTokenAddr()))
+    console.log(this.token)
     this.stateMachine = new StateMachine(this.web3, this.registry, this.plcr)
     await this.stateMachine.sync()
   }
@@ -33,12 +41,6 @@ export default class TCR {
     await this.stateMachine.updateFromTx(tx)
 
     return this.getApplication(hash)
-  }
-
-  async getVotingContract () {
-    const addr = await this.registry.methods.voting().call()
-    const contract = new this.web3.eth.Contract(PLCRVoting.abi, addr)
-    return contract
   }
 
   async requestVotingRights (amount: number, web3Opts: Object = {}) {
@@ -65,5 +67,13 @@ export default class TCR {
 
   async getApplication (hash: string) {
     return this.stateMachine.applications.get(hash)
+  }
+
+  async getVotingAddr () {
+    return this.registry.methods.voting().call()
+  }
+
+  async getTokenAddr () {
+    return this.registry.methods.token().call()
   }
 }

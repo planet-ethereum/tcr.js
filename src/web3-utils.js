@@ -11,7 +11,10 @@ import Registry from '../tcr/build/contracts/Registry.json'
 export default class Web3Utils {
   constructor (web3) {
     this.web3 = web3
-    this.token = null
+  }
+
+  getContract (abi, addr) {
+    return new this.web3.eth.Contract(abi, addr)
   }
 
   async deployContract (abi, bytecode, ...args) {
@@ -78,17 +81,5 @@ export default class Web3Utils {
     const as = await this.deployContract(AttributeStore.abi, AttributeStore.bytecode)
 
     return { DLL: dll.options.address, AttributeStore: as.options.address }
-  }
-
-  async fund (addr, amount) {
-    if (this.token === null) throw new Error('Token contract not initialized')
-
-    return this.token.methods.transfer(addr, amount).send()
-  }
-
-  async approve (addr, amount, opts = {}) {
-    if (this.token === null) throw new Error('Token contract not initialized')
-
-    return this.token.methods.approve(addr, amount).send(opts)
   }
 }

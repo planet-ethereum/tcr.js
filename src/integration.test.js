@@ -24,15 +24,15 @@ describe('scenario 1', async () => {
   })
 
   test('should instantiate', async () => {
-    await expect(r.init()).resolves
-    await utils.fund(challenger, 1000)
-    await utils.approve(registry.options.address, 500, { from: challenger })
+    await r.init()
+    await r.token.transfer(challenger, 1000, { from: applicant })
+    await r.token.approve(registry.options.address, 500, { from: challenger })
 
-    await utils.fund(voter1, 1000)
-    await utils.approve(r.plcr.options.address, 200, { from: voter1 })
+    await r.token.transfer(voter1, 1000, { from: applicant })
+    await r.token.approve(r.plcr.options.address, 200, { from: voter1 })
 
-    await utils.fund(voter2, 1000)
-    await utils.approve(r.plcr.options.address, 200, { from: voter2 })
+    await r.token.transfer(voter2, 1000, { from: applicant })
+    await r.token.approve(r.plcr.options.address, 200, { from: voter2 })
   })
 
   test('should apply', async () => {
