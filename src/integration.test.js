@@ -10,7 +10,7 @@ const utils = new Web3Utils(web3)
 let registry
 
 describe('scenario 1', async () => {
-  let accounts, applicant, challenger, r, app, challenge,
+  let accounts, applicant, challenger, r, listing, challenge,
     voter1, voter2
 
   beforeAll(async () => {
@@ -36,14 +36,15 @@ describe('scenario 1', async () => {
   })
 
   test('should apply', async () => {
-    app = await r.apply(web3.utils.sha3('app1'), 100, '0x0')
-    expect(app.deposit.toString()).toEqual('100')
-    expect(app.applicant).toEqual(applicant)
+    listing = await r.apply(web3.utils.sha3('app1'), 100, '0x0')
+    expect(listing.deposit.toString()).toEqual('100')
+    expect(listing.applicant).toEqual(applicant)
+    expect(listing.whitelisted).toBe(false)
   })
 
   test('should challenge application', async () => {
-    challenge = await app.challenge('0x0', { from: challenger })
-    expect(challenge.hash).toEqual(app.hash)
+    challenge = await listing.challenge('0x0', { from: challenger })
+    expect(challenge.hash).toEqual(listing.hash)
     expect(challenge.challenger).toEqual(challenger)
     expect(challenge.id).toEqual('1')
     const challengerBalance = await utils.token.methods.balanceOf(challenger).call()
@@ -70,12 +71,12 @@ describe('scenario 1', async () => {
 
   test('should update status', async () => {
     await sleep(4200)
-    await app.updateStatus()
+    await listing.updateStatus()
     expect(challenge.finished).toBe(true)
     expect(challenge.succeeded).toBe(true)
     let challengerBalance = await utils.token.methods.balanceOf(challenger).call()
     expect(challengerBalance).toEqual('1050')
-    expect(app.whitelisted).toBe(false)
+    expect(listing.whitelisted).toBe(false)
   })
 })
 

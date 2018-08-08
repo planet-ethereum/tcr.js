@@ -1,21 +1,68 @@
 'use strict'
 // @flow
-import Application from './application'
+import BN from 'bn.js'
 
 export default class Listing {
+  stateMachine: Object
   registry: Object
-  application: Application
+  hash: string
+  deposit: number
+  appEndDate: number
+  data: string
+  applicant: string
+  whitelisted: boolean
 
-  constructor (registry: Object, application: Application) {
-    if (!application) {
-      throw new Error('Failed creating listing, application is invalid')
-    }
-
+  constructor (stateMachine: Object, registry: Object, { listingHash, deposit, appEndDate, data, applicant }: {
+    listingHash: string,
+    deposit: number,
+    appEndDate: number,
+    data: string,
+    applicant: string
+  }) {
+    this.stateMachine = stateMachine
     this.registry = registry
-    this.application = application
+    this.hash = listingHash
+    this.deposit = deposit
+    this.appEndDate = appEndDate
+    this.data = data
+    this.applicant = applicant
+    this.whitelisted = false
+
+    if (this.deposit && typeof this.deposit === 'string') {
+      this.deposit = new BN(this.deposit, 10)
+    }
+  }
+
+  async updateStatus () {
+    let gas = await this.registry.methods.updateStatus(this.hash).estimateGas()
+    gas = gas * 2
+    const tx = await this.registry.methods.updateStatus(this.hash).send({ gas })
+    await this.stateMachine.updateFromTx(tx)
+    return this
+  }
+
+  async deposit (amount: number) {
+    const tx = await this.registry.methods.deposit(this.hash, amount).send()
+    await this.stateMachine.updateFromTx(tx)
+    return this
+  }
+
+  async withdraw (amount: number) {
+    const tx = await this.registry.methods.withdraw(this.hash, amount).send()
+    await this.stateMachine.updateFromTx(tx)
+    return this
+  }
+
+  async challenge (data: string, web3Opts: Object = {}) {
+    let gas = await this.registry.methods.challenge(this.hash, data).estimateGas()
+    gas = gas * 2
+    const opts = Object.assign({}, { gas }, web3Opts)
+    const tx = await this.registry.methods.challenge(this.hash, data).send(opts)
+    await this.stateMachine.updateFromTx(tx)
+    return this.stateMachine.challenges.get(this.hash)
   }
 
   async exit () {
-    return this.registry.methods.exit(this.application.hash).send()
+    return this.registry.methods.exit(this.hash).send()
   }
 }

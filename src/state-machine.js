@@ -1,6 +1,5 @@
 'use strict'
 // @flow
-import Application from './application'
 import Listing from './listing'
 import Challenge from './challenge'
 
@@ -9,7 +8,6 @@ export default class StateMachine {
   registry: Object
   plcr: Object
   synced: boolean
-  applications: Map<string, Application>
   listings: Map<string, Listing>
   challenges: Map<string, Challenge>
   validEvents: Set<string>
@@ -19,7 +17,6 @@ export default class StateMachine {
     this.registry = registry
     this.plcr = plcr
     this.synced = false
-    this.applications = new Map()
     this.listings = new Map()
     this.challenges = new Map()
     this.validEvents = new Set([
@@ -61,11 +58,11 @@ export default class StateMachine {
   updateState (log: Object) {
     let values = log.returnValues
     let hash = values.listingHash
-    let a
+    let l
     let c
     switch (log.event) {
       case '_Application':
-        this.applications.set(hash, new Application(this, this.registry, values))
+        this.listings.set(hash, new Listing(this, this.registry, values))
         break
       case '_Challenge':
         this.challenges.set(hash, new Challenge(this.web3, this.registry, this.plcr, values))
@@ -84,32 +81,30 @@ export default class StateMachine {
         c.succeeded = true
         break
       case '_ApplicationWhitelisted':
-        a = this.applications.get(hash)
-        if (!a) break
+        l = this.listings.get(hash)
+        if (!l) break
 
-        a.whitelisted = true
-        this.listings.set(hash, new Listing(this.registry, a))
+        l.whitelisted = true
         break
       case '_Deposit':
-        a = this.applications.get(hash)
-        if (!a) break
+        l = this.listings.get(hash)
+        if (!l) break
 
-        a.deposit = values.newTotal
+        l.deposit = values.newTotal
         break
       case '_Withdrawal':
-        a = this.applications.get(hash)
-        if (!a) break
+        l = this.listings.get(hash)
+        if (!l) break
 
-        a.deposit = values.newTotal
+        l.deposit = values.newTotal
         break
       case '_ListingRemoved':
       case '_ListingWithdrawn':
       case '_TouchAndRemoved':
         this.listings.delete(hash)
-        this.applications.delete(hash)
         break
       case '_ApplicationRemoved':
-        this.applications.delete(hash)
+        this.listings.delete(hash)
         break
       default:
         console.error('Invalid event type')
