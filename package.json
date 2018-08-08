@@ -49,7 +49,6 @@
     "regenerator-runtime": "^0.12.1",
     "rollup-plugin-babel": "^3.0.7",
     "rollup-plugin-json": "^3.0.0",
-    "solc": "^0.4.24",
     "standard": "^11.0.1"
   },
   "dependencies": {

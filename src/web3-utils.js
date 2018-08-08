@@ -1,5 +1,3 @@
-import linker from 'solc/linker'
-
 import DLL from '../tcr/build/contracts/DLL.json'
 import AttributeStore from '../tcr/build/contracts/AttributeStore.json'
 import EIP20 from '../tcr/build/contracts/EIP20.json'
@@ -33,13 +31,13 @@ export default class Web3Utils {
   async deployContracts () {
     const libs = await this.deployLibs()
 
-    const plcrfBytecode = linker.linkBytecode(PLCRFactory.bytecode, libs)
+    const plcrfBytecode = this.linkBytecode(PLCRFactory.bytecode, libs)
     const plcrf = await this.deployContract(PLCRFactory.abi, plcrfBytecode)
 
-    const paramfByteCode = linker.linkBytecode(ParameterizerFactory.bytecode, libs)
+    const paramfByteCode = this.linkBytecode(ParameterizerFactory.bytecode, libs)
     const paramf = await this.deployContract(ParameterizerFactory.abi, paramfByteCode, plcrf.options.address)
 
-    const rfBytecode = linker.linkBytecode(RegistryFactory.bytecode, libs)
+    const rfBytecode = this.linkBytecode(RegistryFactory.bytecode, libs)
     return this.deployContract(RegistryFactory.abi, rfBytecode, paramf.options.address)
   }
 
@@ -81,5 +79,38 @@ export default class Web3Utils {
     const as = await this.deployContract(AttributeStore.abi, AttributeStore.bytecode)
 
     return { DLL: dll.options.address, AttributeStore: as.options.address }
+  }
+
+  // Taken with modifications from solc/linker
+  linkBytecode (bytecode, libs) {
+    const links = Object.assign({}, libs)
+    const keys = Object.keys(links)
+    for (let i = 0; i < keys.length; i++) {
+      let name = keys[i]
+      let addr = links[name]
+
+      // Truncate to 37 characters
+      name = name.slice(0, 36)
+
+      // Prefix and suffix with __
+      let label = '__' + name + Array(37 - name.length).join('_') + '__'
+
+      if (addr.slice(0, 2) !== '0x' || addr.length > 42) {
+        throw new Error('Invalid address specified for ' + name)
+      }
+
+      // Remove 0x prefix
+      addr = addr.slice(2)
+      addr = Array(40 - addr.length + 1).join('0') + addr
+
+      while (bytecode.indexOf(label) >= 0) {
+        bytecode = bytecode.replace(label, addr)
+      }
+      const regex = new RegExp('__' + name + '_+', 'g')
+
+      bytecode = bytecode.replace(regex, addr.replace('0x', ''))
+    }
+
+    return bytecode
   }
 }

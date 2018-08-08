@@ -27,7 +27,6 @@ export default class TCR {
   async init () {
     this.plcr = this.web3Utils.getContract(PLCRVoting.abi, await this.getVotingAddr())
     this.token = new Token(this.web3Utils.getContract(EIP20Interface.abi, await this.getTokenAddr()))
-    console.log(this.token)
     this.stateMachine = new StateMachine(this.web3, this.registry, this.plcr)
     await this.stateMachine.sync()
   }
