@@ -23,8 +23,8 @@ export default class Web3Utils {
     // The estimated gas doesn't seem to work
     // https://github.com/trufflesuite/ganache-core/pull/75
     gas *= 2
-
-    opts = Object.assign({}, { gas }, opts)
+    let coinbase = await this.web3.eth.getCoinbase()
+    opts = Object.assign({}, { gas, from: coinbase }, opts)
     return method.send(opts)
   }
 
