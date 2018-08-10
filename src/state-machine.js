@@ -1,5 +1,7 @@
 'use strict'
 // @flow
+import BN from 'bn.js'
+
 import Listing from './listing'
 import Challenge from './challenge'
 import Web3Utils from './web3-utils'
@@ -60,6 +62,7 @@ export default class StateMachine {
 
   updateState (log: Object) {
     let values = log.returnValues
+    values = this.sanitizeValues(values)
     let hash = values.listingHash
     let l
     let c
@@ -112,5 +115,19 @@ export default class StateMachine {
       default:
         console.error('Invalid event type')
     }
+  }
+
+  sanitizeValues (values: Object) {
+    let res = Object.assign({}, values)
+
+    if (res.deposit) {
+      res.deposit = new BN(res.deposit)
+    }
+
+    if (res.newTotal) {
+      res.newTotal = new BN(res.newTotal)
+    }
+
+    return values
   }
 }
