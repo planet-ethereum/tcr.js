@@ -1,10 +1,10 @@
 import Web3 from 'web3'
 import Ganache from 'ganache-core'
 
-import TCR from './index'
+import TCR from './tcr'
 import Web3Utils from './web3-utils'
 
-const provider = Ganache.provider({ gasLimit: 18000000 })
+const provider = Ganache.provider({ gasLimit: 8000000 })
 const web3 = new Web3(provider)
 const utils = new Web3Utils(web3)
 let registry
