@@ -54,11 +54,13 @@ export default class Web3Utils {
     return this.deployContract(RegistryFactory.abi, rfBytecode, paramf.options.address)
   }
 
-  async newRegistry () {
+  async newRegistry (params) {
     const coinbase = await this.web3.eth.getCoinbase()
     const rf = await this.deployContracts()
 
-    let params = [100, 100, 100, 100, 1, 100, 5, 100, 50, 50, 50, 50]
+    if (params === undefined) {
+      params = [100, 100, 100, 100, 1, 100, 5, 100, 50, 50, 50, 50]
+    }
     let gas = await rf.methods.newRegistryWithToken(
       10 ** 6,
       'OpenKnowledgeTestToken',
