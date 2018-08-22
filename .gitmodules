@@ -1,3 +1,6 @@
 [submodule "tcr"]
 	path = tcr
 	url = git@github.com:skmgoldin/tcr.git
+[submodule "packages/core/tcr"]
+	path = packages/core/tcr
+	url = git@github.com:skmgoldin/tcr.git
