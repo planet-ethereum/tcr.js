@@ -12,7 +12,6 @@
     "prepublish": "npm run build",
     "build": "rollup -c",
     "dev": "rollup -w -c",
-    "test": "jest",
     "lint": "standard",
     "flow": "flow"
   },
@@ -25,9 +24,6 @@
       "jest"
     ]
   },
-  "jest": {
-    "testURL": "http://localhost"
-  },
   "devDependencies": {
     "babel-core": "^6.26.3",
     "babel-eslint": "^8.2.6",
@@ -39,7 +35,6 @@
     "eslint-plugin-flowtype": "^2.50.0",
     "flow-bin": "^0.78.0",
     "ganache-core": "^2.1.6",
-    "jest": "^23.4.2",
     "lerna": "^3.1.4",
     "regenerator-runtime": "^0.12.1",
     "rollup-plugin-babel": "^3.0.7",

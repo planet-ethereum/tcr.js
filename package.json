@@ -13,7 +13,8 @@
   "scripts": {
     "prepublish": "npm run build",
     "lint": "standard",
-    "flow": "flow"
+    "flow": "flow",
+    "test": "jest"
   },
   "standard": {
     "parser": "babel-eslint",
@@ -24,11 +25,9 @@
       "jest"
     ]
   },
-  "jest": {
-    "testURL": "http://localhost"
-  },
   "devDependencies": {
     "flow-bin": "^0.78.0",
+    "jest": "^23.5.0",
     "lerna": "^3.1.4",
     "standard": "^11.0.1"
   },
